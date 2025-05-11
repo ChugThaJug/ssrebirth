@@ -1,0 +1,29 @@
+{
+    "video_id": "4T3TcsPYXiQ",
+    "chapters": [
+        {
+            "num_chapter": 0,
+            "title": "Breaking Through the Noise: Confronting Fear",
+            "start_paragraph_number": 0,
+            "end_paragraph_number": 3,
+            "start_time": 9.04,
+            "end_time": 9.04,
+            "paragraphs": [
+                "None of it means anything; it's all just noise. Don't you think it's interesting how the best decisions you've ever made in your life were also the most fear-inducing? Why do you think that is?",
+                "Fear is Evil's greatest weapon. It finds an insecurity, a weakness, or an undesirable outcome, and it contorts it into a monstrous, paralyzing fear. This fear prevents us from making any changes in our lives, even when those changes are what will ultimately set us free. It can hinder us from starting a new chapter in our lives or from living as we wish.",
+                "But the reality is, it's all just noise. The moment you confront that noise and stare it straight in the eyes, you will watch it wither away into the nothingness that it always was."
+            ],
+            "paragraph_timestamps": [
+                9.04,
+                9.04,
+                9.04
+            ],
+            "screenshots": null
+        }
+    ],
+    "stats": {
+        "total_input_tokens": 545,
+        "total_output_tokens": 234,
+        "total_price": 0.000222
+    }
+}

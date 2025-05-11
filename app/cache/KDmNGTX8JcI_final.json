@@ -1,0 +1,56 @@
+{
+    "video_id": "KDmNGTX8JcI",
+    "chapters": [
+        {
+            "num_chapter": 0,
+            "title": "Investigating Do Not Disturb Mode",
+            "start_paragraph_number": 0,
+            "end_paragraph_number": 4,
+            "start_time": 0.0,
+            "end_time": 69.9,
+            "paragraphs": [
+                "Are you experiencing too many missed calls? This can indeed be frustrating. If you're facing this issue, here are some simple solutions to help you resolve it.",
+                "The first step you should try is rebooting your phone. Restarting your device is a common fix that can resolve a variety of problems in almost any scenario. If a reboot does not solve the issue, the next step is to check the ring volume on your Android device to ensure it is not muted.",
+                "Android devices have four categories under sound settings: media volume, call volume, ring volume, and alarm volume. When adjusting the volume using the volume buttons, make sure you are specifically changing the ring volume.",
+                "To verify if the ring volume is enabled, go to your device's settings, then navigate to \"Sound\" or \"Sound and Vibration.\" Check the slider for ring volume to ensure it is above the minimum level and not set to mute. If it is too low, simply drag the slider next to the ring volume to increase it."
+            ],
+            "paragraph_timestamps": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "screenshots": null
+        },
+        {
+            "num_chapter": 1,
+            "title": "Conclusion and Additional Resources",
+            "start_paragraph_number": 0,
+            "end_paragraph_number": 6,
+            "start_time": 69.9,
+            "end_time": 136.62,
+            "paragraphs": [
+                "If you are experiencing issues with your phone's ring volume, particularly if your Android device is automatically switching to silent mode, it may be related to the Do Not Disturb (DND) settings. To investigate this, start by opening the Settings app on your Android device. Scroll down and select \"Sound and Vibration,\" then tap on \"Do Not Disturb.\"",
+                "Please note that the exact steps may vary depending on your Android device. Look for a setting labeled \"Schedules.\" Ensure that no automatic rules or schedules are active; if you find any, simply turn them off.",
+                "Additionally, consider whether any recent apps you have installed or updated might be interfering with your sound control settings. Some apps can modify device volume through their permissions. If you suspect this might be the case, try uninstalling any new apps one by one to determine if this resolves the issue.",
+                "If none of these steps work to fix the problem, you may need to explore other troubleshooting options or consider resetting your device to its factory settings.",
+                "You can use third-party apps, such as Volume Control, to set a default volume on your device. These apps allow you to create presets and define specific volume levels for different applications, enabling you to prioritize them accordingly.",
+                "That's all for now. If you found this guide helpful, make sure to follow and subscribe to Guiding Tech for more tutorials related to your iPhone and other tech products. Additionally, be sure to check out one of these videos that we think you might enjoy."
+            ],
+            "paragraph_timestamps": [
+                69.9,
+                69.9,
+                69.9,
+                69.9,
+                136.62,
+                136.62
+            ],
+            "screenshots": null
+        }
+    ],
+    "stats": {
+        "total_input_tokens": 1296,
+        "total_output_tokens": 689,
+        "total_price": 0.000607
+    }
+}
