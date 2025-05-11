@@ -1,54 +1,106 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// src/lib/api.ts
+import { user } from './firebase';
+import { get } from 'svelte/store';
 
-async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
-  const token = localStorage.getItem('token');
-  const headers = {
-    ...options.headers,
-    'Content-Type': 'application/json',
-    'Authorization': token ? `Bearer ${token}` : '',
-  };
+// Base URL for API
+const API_BASE_URL = '/api/v1';
 
-  const response = await fetch(url, { ...options, headers });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    console.error('Error response:', errorData);
-    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+// Function to get auth headers
+async function getAuthHeaders() {
+  const currentUser = get(user);
+  
+  if (!currentUser || !currentUser.token) {
+    throw new Error('User not authenticated');
   }
-
-  return response;
+  
+  return {
+    'Authorization': `Bearer ${currentUser.token}`,
+    'Content-Type': 'application/json'
+  };
 }
 
-export async function processVideo(youtubeUrl: string, processingMode: string) {
-  const response = await fetchWithAuth(`${API_BASE_URL}/video/process_video/`, {
-    method: 'POST',
-    body: JSON.stringify({ youtube_url: youtubeUrl, processing_mode: processingMode }),
-  });
-
-  return await response.json();
+// Process a video
+export async function processVideo(videoId: string, mode: string = 'detailed', chapterSource: string = 'auto') {
+  try {
+    const headers = await getAuthHeaders();
+    
+    const response = await fetch(`${API_BASE_URL}/youtube/process/${videoId}`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ mode, chapterSource })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to process video');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error processing video:', error);
+    throw error;
+  }
 }
 
+// Get processing status
+export async function getProcessingStatus(jobId: string) {
+  try {
+    const headers = await getAuthHeaders();
+    
+    const response = await fetch(`${API_BASE_URL}/youtube/status/${jobId}`, {
+      headers
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to get processing status');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting status:', error);
+    throw error;
+  }
+}
+
+// Get video result
 export async function getVideoResult(videoId: string) {
-  const response = await fetchWithAuth(`${API_BASE_URL}/video/${videoId}`);
-  return await response.json();
+  try {
+    const headers = await getAuthHeaders();
+    
+    const response = await fetch(`${API_BASE_URL}/youtube/result/${videoId}`, {
+      headers
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to get video result');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting video result:', error);
+    throw error;
+  }
 }
 
-export async function updateVideoSummary(id: string, summary: string) {
-  const response = await fetchWithAuth(`${API_BASE_URL}/video/${id}/summary`, {
-    method: 'PUT',
-    body: JSON.stringify({ summary }),
-  });
-
-  return await response.json();
+// Get user's videos
+export async function getUserVideos() {
+  try {
+    const headers = await getAuthHeaders();
+    
+    const response = await fetch(`${API_BASE_URL}/videos`, {
+      headers
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to get user videos');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting user videos:', error);
+    throw error;
+  }
 }
-
-export async function updateVideoTranscript(id: string, transcript: string) {
-  const response = await fetchWithAuth(`${API_BASE_URL}/video/${id}/transcript`, {
-    method: 'PUT',
-    body: JSON.stringify({ transcript }),
-  });
-
-  return await response.json();
-}
-
-// ... (other API functions remain the same)

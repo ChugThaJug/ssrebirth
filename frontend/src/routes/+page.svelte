@@ -1,212 +1,131 @@
-<script lang="ts">
-  import { fade } from 'svelte/transition';
-  import { 
-    processVideo, 
-    ProcessingMode, 
-    ChapterSource
-  } from '$lib/services/api';
-  import { getVideoId } from '$lib/utils/youtube';
-  import { Button } from "$lib/components/ui/button";
-  import { Input } from "$lib/components/ui/input";
-  import { 
-    Select,
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
-  } from "$lib/components/ui/select";
-  import { goto } from '$app/navigation';
-
-  let videoUrl = "";
-  let error = "";
-  let loading = false;
-
-  // Initialize with string values that match the enum values
-  let selectedMode = "detailed";
-  let selectedChapterSource = "auto";
-
-  async function handleSubmit() {
-    if (!videoUrl) {
-      error = "Please enter a YouTube URL";
-      return;
-    }
-
-    const videoId = getVideoId(videoUrl);
-    if (!videoId) {
-      error = "Invalid YouTube URL";
-      return;
-    }
-
-    loading = true;
-    error = "";
-
-    try {
-      // Send the string values directly
-      const result = await processVideo(videoId, selectedMode, selectedChapterSource);
-      await goto(`/process/${result.job_id}`);
-    } catch (err) {
-      error = err instanceof Error ? err.message : "An error occurred";
-    } finally {
-      loading = false;
-    }
-  }
-
-  // Helper function to format display text
-  function formatDisplayText(text: string): string {
-    return text.toLowerCase().replace(/_/g, ' ');
-  }
-
-  // Define options for the select components
-  const modeOptions = [
-    { value: "simple", label: "Simple" },
-    { value: "detailed", label: "Detailed" },
-    { value: "detailed_with_screenshots", label: "Detailed with Screenshots" }
-  ];
-
-  const sourceOptions = [
-    { value: "auto", label: "Auto-generated" },
-    { value: "description", label: "From Description" }
-  ];
-
-  // Helper function to get description text
-  function getModeDescription(mode: string): string {
-    switch (mode) {
-      case 'simple':
-        return 'Quick processing with basic structuring';
-      case 'detailed':
-        return 'Detailed analysis with better organization';
-      case 'detailed_with_screenshots':
-        return 'Comprehensive analysis with visual aids';
-      default:
-        return '';
-    }
-  }
+<!-- src/routes/+page.svelte -->
+<script>
+  import { Button } from '$lib/components/ui/button';
+  import { isAuthenticated } from '$lib/firebase';
 </script>
 
-<svelte:head>
-  <title>Stepify - YouTube Video Processing</title>
-  <meta name="description" content="Process YouTube videos and get structured content with AI-powered analysis" />
-</svelte:head>
-
-<div class="container mx-auto px-4 py-8 max-w-2xl" in:fade>
-  <div class="text-center mb-8">
-    <h1 class="text-4xl font-bold tracking-tight mb-4">
-      Process YouTube Videos
-    </h1>
-    <p class="text-lg text-muted-foreground">
-      Convert any YouTube video into well-structured, readable content with AI-powered analysis.
-    </p>
-  </div>
-
-  <div class="bg-card border rounded-lg p-6 shadow-sm">
-    <form on:submit|preventDefault={handleSubmit} class="space-y-6">
-      <div class="space-y-2">
-        <label for="videoUrl" class="block text-sm font-medium">
-          YouTube URL <span class="text-destructive">*</span>
-        </label>
-        <Input 
-          type="url" 
-          id="videoUrl"
-          name="videoUrl"
-          bind:value={videoUrl}
-          placeholder="https://www.youtube.com/watch?v=..."
-          required
-          aria-describedby={error ? "url-error" : undefined}
-          class="h-12"
-        />
-        {#if error}
-          <div 
-            id="url-error" 
-            class="bg-destructive/15 text-destructive text-sm p-3 rounded-md" 
-            role="alert"
-            transition:fade
-          >
-            {error}
+<div class="bg-background">
+  <div class="relative overflow-hidden">
+    <!-- Hero Section -->
+    <div class="pt-10 sm:pt-16 lg:overflow-hidden lg:pt-8 lg:pb-14">
+      <div class="mx-auto max-w-7xl lg:px-8">
+        <div class="lg:grid lg:grid-cols-2 lg:gap-8">
+          <div class="mx-auto max-w-md px-4 sm:max-w-2xl sm:px-6 sm:text-center lg:flex lg:items-center lg:px-0 lg:text-left">
+            <div class="lg:py-24">
+              <h1 class="text-4xl font-bold tracking-tight text-black sm:mt-5 sm:text-6xl lg:mt-6 xl:text-6xl dark:text-white">
+                <span class="block">Transform YouTube Videos</span>
+                <span class="block text-primary">into Structured Content</span>
+              </h1>
+              <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl dark:text-gray-400">
+                Convert any YouTube video into well-organized, readable content with AI-powered analysis. Get chapters, summaries, and more.
+              </p>
+              <div class="mt-10 sm:mt-12">
+                {#if $isAuthenticated}
+                  <Button href="/dashboard" size="lg" class="px-8">Go to Dashboard</Button>
+                {:else}
+                  <div class="sm:mx-auto sm:max-w-xl lg:mx-0">
+                    <div class="sm:flex">
+                      <div class="sm:mt-0 sm:ml-3">
+                        <Button href="/sign-up" size="lg" class="px-8">Get Started</Button>
+                      </div>
+                    </div>
+                  </div>
+                {/if}
+              </div>
+            </div>
           </div>
-        {/if}
-      </div>
-
-      <div class="grid gap-6 sm:grid-cols-2">
-        <div class="space-y-2">
-          <label for="processingMode" class="block text-sm font-medium">
-            Processing Mode
-          </label>
-          <Select 
-            defaultValue={selectedMode}
-            onValueChange={(value) => selectedMode = value}
-          >
-            <SelectTrigger class="h-12">
-              <SelectValue placeholder="Select mode">
-                {formatDisplayText(selectedMode)}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {#each modeOptions as option}
-                <SelectItem value={option.value}>
-                  {option.label}
-                </SelectItem>
-              {/each}
-            </SelectContent>
-          </Select>
-          <p class="text-xs text-muted-foreground">
-            {getModeDescription(selectedMode)}
-          </p>
-        </div>
-
-        <div class="space-y-2">
-          <label for="chapterSource" class="block text-sm font-medium">
-            Chapter Source
-          </label>
-          <Select 
-            defaultValue={selectedChapterSource}
-            onValueChange={(value) => selectedChapterSource = value}
-          >
-            <SelectTrigger class="h-12">
-              <SelectValue placeholder="Select source">
-                {selectedChapterSource === 'auto' ? 'Auto-generated' : 'From Description'}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {#each sourceOptions as option}
-                <SelectItem value={option.value}>
-                  {option.label}
-                </SelectItem>
-              {/each}
-            </SelectContent>
-          </Select>
-          <p class="text-xs text-muted-foreground">
-            {selectedChapterSource === 'auto' 
-              ? 'AI-generated chapters based on content'
-              : 'Use chapters from video description'}
-          </p>
+          <div class="mt-12 -mb-16 sm:-mb-48 lg:relative lg:m-0">
+            <div class="mx-auto max-w-md px-4 sm:max-w-2xl sm:px-6 lg:max-w-none lg:px-0">
+              <img
+                class="w-full lg:absolute lg:inset-y-0 lg:left-0 lg:h-full lg:w-auto lg:max-w-none rounded-lg shadow-xl"
+                src="/hero-image.jpg"
+                alt="App screenshot"
+              />
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <Button 
-        type="submit" 
-        disabled={loading} 
-        class="w-full h-12"
-        variant="default"
-      >
-        {#if loading}
-          <div class="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
-          Processing...
-        {:else}
-          Process Video
-        {/if}
-      </Button>
-    </form>
-  </div>
+    <!-- Features Section -->
+    <div class="relative bg-gray-50 py-16 sm:py-24 lg:py-32 dark:bg-gray-900">
+      <div class="mx-auto max-w-md px-4 text-center sm:max-w-3xl sm:px-6 lg:max-w-7xl lg:px-8">
+        <h2 class="text-base font-semibold uppercase tracking-wider text-primary">Features</h2>
+        <p class="mt-2 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+          Everything you need to process videos
+        </p>
+        <p class="mx-auto mt-5 max-w-prose text-xl text-gray-500 dark:text-gray-400">
+          Our AI-powered processing gives you everything you need to transform videos into useful content.
+        </p>
+        <div class="mt-12">
+          <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="pt-6">
+              <div class="rounded-lg bg-white px-6 pb-8 dark:bg-gray-800">
+                <div class="-mt-6 flex justify-center">
+                  <div class="inline-flex items-center justify-center rounded-md bg-primary p-3 shadow-lg">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="mt-8 text-lg font-medium tracking-tight text-gray-900 dark:text-white">Structured Transcripts</h3>
+                <p class="mt-5 text-base text-gray-500 dark:text-gray-400">
+                  Get clean, organized transcripts with proper paragraphs and punctuation.
+                </p>
+              </div>
+            </div>
 
-  <div class="mt-6 space-y-4 text-sm text-muted-foreground">
-    <div class="bg-muted/50 rounded-lg p-4">
-      <h2 class="font-medium mb-2">Processing Information</h2>
-      <ul class="list-disc list-inside space-y-1">
-        <li>Processing time varies based on video length and selected mode</li>
-        <li>Simple mode is fastest but provides basic structure</li>
-        <li>Detailed mode provides better organization and summaries</li>
-        <li>Screenshots are only available in detailed mode with screenshots</li>
-      </ul>
+            <div class="pt-6">
+              <div class="rounded-lg bg-white px-6 pb-8 dark:bg-gray-800">
+                <div class="-mt-6 flex justify-center">
+                  <div class="inline-flex items-center justify-center rounded-md bg-primary p-3 shadow-lg">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="mt-8 text-lg font-medium tracking-tight text-gray-900 dark:text-white">Auto Chapters</h3>
+                <p class="mt-5 text-base text-gray-500 dark:text-gray-400">
+                  AI-generated chapters that organize content into logical sections.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-6">
+              <div class="rounded-lg bg-white px-6 pb-8 dark:bg-gray-800">
+                <div class="-mt-6 flex justify-center">
+                  <div class="inline-flex items-center justify-center rounded-md bg-primary p-3 shadow-lg">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="mt-8 text-lg font-medium tracking-tight text-gray-900 dark:text-white">Video Screenshots</h3>
+                <p class="mt-5 text-base text-gray-500 dark:text-gray-400">
+                  Automatic screenshots at key moments to illustrate the content.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- CTA Section -->
+    <div class="bg-primary">
+      <div class="mx-auto max-w-7xl py-12 px-4 sm:px-6 lg:flex lg:items-center lg:justify-between lg:py-24 lg:px-8">
+        <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          <span class="block">Ready to get started?</span>
+          <span class="block text-gray-200">Create your account today.</span>
+        </h2>
+        <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
+          <div class="inline-flex rounded-md shadow">
+            <Button href="/sign-up" variant="default" size="lg" class="bg-white text-primary hover:bg-gray-100">
+              Get Started
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

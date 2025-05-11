@@ -1,0 +1,85 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String            @id @default(uuid())
+  firebaseUid       String            @unique
+  email             String            @unique
+  displayName       String?
+  photoURL          String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  isActive          Boolean           @default(true)
+  
+  // Subscription related fields
+  subscriptionTier  String?           @default("free")
+  subscriptionStatus String?          @default("active")
+  stripeCustomerId  String?
+  tokenUsage        Int               @default(0)
+  tokenLimit        Int               @default(10000)  // Free tier limit
+  
+  // Relationships
+  videos            Video[]
+  processingJobs    ProcessingJob[]
+}
+
+model Video {
+  id                String            @id @default(uuid())
+  videoId           String            @unique  // YouTube video ID
+  userId            String
+  title             String?
+  status            String            @default("pending")
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  processingMode    String            @default("detailed")
+  chapterSource     String            @default("auto")
+  
+  // JSON fields to store complex data
+  chapters          Json?
+  stats             Json?
+  error             String?
+  
+  // Relationships
+  user              User              @relation(fields: [userId], references: [id])
+  processingJobs    ProcessingJob[]
+}
+
+model ProcessingJob {
+  id                String            @id @default(uuid())
+  jobId             String            @unique
+  videoId           String
+  userId            String
+  status            String            @default("pending")
+  progress          Float             @default(0)
+  mode              String            @default("detailed")
+  chapterSource     String            @default("auto")
+  createdAt         DateTime          @default(now())
+  completedAt       DateTime?
+  error             String?
+  
+  // Relationships
+  video             Video             @relation(fields: [videoId], references: [id])
+  user              User              @relation(fields: [userId], references: [id])
+}
+
+model Subscription {
+  id                String            @id @default(uuid())
+  userId            String            @unique
+  stripeCustomerId  String?
+  stripePriceId     String?
+  stripeSubscriptionId String?
+  status            String            @default("inactive")
+  plan              String            @default("free")
+  startDate         DateTime?
+  endDate           DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  cancelAtPeriodEnd Boolean           @default(false)
+}
